@@ -21,6 +21,11 @@ namespace GridSubsystem
         int m_Rows;
         int m_Columns;
         _2DArray<Cell> m_Grid;
+        List<Word> m_InsertedWords;
+        static readonly List<char> m_Alphabets = new List<char>() {'A', 'B', 'C', 'D', 'E',
+                                                                'F','G','H','I','J','K','L','M',
+                                                                'N','O','P','Q','R','S','T','U',
+                                                                'V','W','X','Y','Z'};
         #endregion
 
         #region Properties
@@ -32,6 +37,7 @@ namespace GridSubsystem
             m_Rows = rows;
             m_Columns = columns;
             m_Grid = new _2DArray<Cell>(rows, columns);
+            m_InsertedWords = new List<Word>();
             InitCells();
         }
 
@@ -50,6 +56,7 @@ namespace GridSubsystem
                     Position position = insertionPositions[index];
                     m_Grid[position.X, position.Y].Data = word[index];
                 }
+                m_InsertedWords.Add(word);
                 return true;
             }
             return false;
@@ -71,6 +78,47 @@ namespace GridSubsystem
                 count++;
             }
             return output;
+        }
+
+        /// <summary>
+        /// Generates a grid when given a set of words        /// </summary>
+        /// <param name="words">list of potential words</param>
+        public void GenerateGrid(List<string> words)
+        {
+            // Sort the incoming words by alphabet
+            Dictionary<char, List<string>> alphabeticalMap = new Dictionary<char, List<string>>();
+            List<string> potentialWords = new List<string>(words);
+            foreach(char letter in m_Alphabets)
+                alphabeticalMap.Add(letter, new List<string>());
+
+            for(int word = 0; word < potentialWords.Count; word++)
+                alphabeticalMap[potentialWords[word][0]].Add(potentialWords[word]);
+
+
+            for(int row = 0; row < m_Rows; row++)
+                for(int col = 0; col < m_Columns; col++)
+                {
+                    if(!m_Grid[row, col].isEmpty)
+                    {
+                        foreach(String word in alphabeticalMap[m_Grid[row, col].Data.Value])
+                            if(InsertWord(new Word(word, new Position(row, col), Orientation.Horizontal)) || 
+                                InsertWord(new Word(word, new Position(row, col), Orientation.Vertical)))
+                            {
+                                alphabeticalMap[m_Grid[row, col].Data.Value].Remove(word);
+                                row = 0;
+                                col = 0;
+                                break;
+                            }
+                    }
+                }
+
+            // While all non empty cells have been checked 
+            //  Try inserting the corresponding word to the char horizontally and vertically,
+            //  IF operation succeeds
+            //      , move that word out of the word list 
+            //      Start operation all over again for all cells 
+            //  ELSE
+            //      Move on to the next cell
         }
         #endregion
 
@@ -122,7 +170,6 @@ namespace GridSubsystem
                                 else
                                     return false;
                         }
-
                     }
                     // Else if the cell contains the same letter 
                     // check if it is the same word ? 

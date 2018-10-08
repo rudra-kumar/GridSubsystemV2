@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GridSubsystem
 {
-    class _2DArray<T>
+    class _2DArray<T> :IEnumerable
     {
         #region Member Variables
         int m_Height;
@@ -21,6 +22,11 @@ namespace GridSubsystem
         public int Width
         {
             get { return m_Width; }
+        }
+
+        public int Size
+        {
+            get { return m_Width * m_Height; }
         }
         public _2DArray(int height, int width)
         {
@@ -77,6 +83,11 @@ namespace GridSubsystem
                 count++;
             }
             return output;
+        }
+
+        public IEnumerator GetEnumerator()
+        {
+            return m_Array.GetEnumerator();
         }
     }
 }
