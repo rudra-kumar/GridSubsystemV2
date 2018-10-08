@@ -22,6 +22,7 @@ namespace GridSubsystem
         int m_Columns;
         _2DArray<Cell> m_Grid;
         List<Word> m_InsertedWords;
+        bool m_IsEmpty = true;
         static readonly List<char> m_Alphabets = new List<char>() {'A', 'B', 'C', 'D', 'E',
                                                                 'F','G','H','I','J','K','L','M',
                                                                 'N','O','P','Q','R','S','T','U',
@@ -42,6 +43,31 @@ namespace GridSubsystem
         }
 
         /// <summary>
+        /// Generates all possible positions, Each word can be inserted
+        /// </summary>
+        /// <param name="word"></param>
+        /// <returns></returns>
+        public List<Word> GenPossiblePositions(List<string> words)
+        {
+            List<Word> possibleWords = new List<Word>();
+            foreach(string word in words)
+            {
+                for (int row = 0; row < m_Rows; row++)
+                    for (int col = 0; col < m_Columns; col++)
+                    {
+                        Word Horizontal = new Word(word, new Position(row, col), Orientation.Horizontal);
+                        Word Vertical = new Word(word, new Position(row, col), Orientation.Vertical);
+
+                        if (CanInsertWord(Horizontal))
+                            possibleWords.Add(Horizontal);
+                        if (CanInsertWord(Vertical))
+                            possibleWords.Add(Vertical);
+                    }
+            }
+            return possibleWords;
+        }
+
+        /// <summary>
         /// Insert a word 
         /// </summary>
         /// <param name="word">Word to be inserted</param>
@@ -57,6 +83,8 @@ namespace GridSubsystem
                     m_Grid[position.X, position.Y].Data = word[index];
                 }
                 m_InsertedWords.Add(word);
+                if (m_IsEmpty)
+                    m_IsEmpty = false;
                 return true;
             }
             return false;
@@ -95,20 +123,22 @@ namespace GridSubsystem
                 alphabeticalMap[potentialWords[word][0]].Add(potentialWords[word]);
 
 
+
             for(int row = 0; row < m_Rows; row++)
                 for(int col = 0; col < m_Columns; col++)
                 {
-                    if(!m_Grid[row, col].isEmpty)
+                    // iterate over all the words in the list
+                    for(int word = 0; word < potentialWords.Count; word++)
                     {
-                        foreach(String word in alphabeticalMap[m_Grid[row, col].Data.Value])
-                            if(InsertWord(new Word(word, new Position(row, col), Orientation.Horizontal)) || 
-                                InsertWord(new Word(word, new Position(row, col), Orientation.Vertical)))
-                            {
-                                alphabeticalMap[m_Grid[row, col].Data.Value].Remove(word);
-                                row = 0;
-                                col = 0;
-                                break;
-                            }
+                        if (InsertWord(new Word(potentialWords[word], new Position(row, col), Orientation.Horizontal)) ||
+                            InsertWord(new Word(potentialWords[word], new Position(row, col), Orientation.Vertical)))
+                        {
+                            potentialWords.RemoveAt(word);
+                            word = 0;
+                            row = 0;
+                            col = 0;
+                            break;
+                        }
                     }
                 }
 
@@ -140,6 +170,7 @@ namespace GridSubsystem
         /// <returns>True if word can be inserted</returns>
         private bool CanInsertWord(Word word)
         {
+            bool isOverlapping = false;
             // If the word is longer than columns 
             if (!IsValidIndex(word.EndPosition.X, word.EndPosition.Y))
                 return false;
@@ -175,17 +206,28 @@ namespace GridSubsystem
                     // check if it is the same word ? 
                     else if (cell.Data == word[index])
                     {
+                        isOverlapping = true;
                         // if the cell to the right is empty, continue to the next letter and cell
                         switch (word.Orientation)
                         {
                             case Orientation.Horizontal:
                                 if (CheckIfEmpty(cellPositions[index], Offset.Right))
+                                {
+                                    // IF overriding the first letter of the word, ensure you're not overriding a horizontal word
+                                    if (index == 0 && !CheckIfEmpty(cellPositions[index], Offset.Left))
+                                        return false;
                                     continue;
+                                }
                                 else
                                     return false;
                             case Orientation.Vertical:
                                 if (CheckIfEmpty(cellPositions[index], Offset.Bottom))
+                                {
+                                    // IF overriding the first letter of the word, ensure you're not overriding a Vertical word
+                                    if (index == 0 && !CheckIfEmpty(cellPositions[index], Offset.Top))
+                                        return false;
                                     continue;
+                                }
                                 else
                                     return false;
                         }
@@ -194,14 +236,17 @@ namespace GridSubsystem
                         return false;
                 }
             }
-            return true;
+            if (isOverlapping || m_IsEmpty)
+                return true;
+            else
+                return false;
         }
 
 
         // Checks if the index is valid
         private bool IsValidIndex(int row, int col)
         {
-            if (row > -1 && row <= m_Rows && col > -1 && col <= m_Columns)
+            if (row > -1 && row < m_Rows && col > -1 && col < m_Columns)
                 return true;
             return false;
         }

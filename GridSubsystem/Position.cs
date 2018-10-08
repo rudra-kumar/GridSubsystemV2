@@ -68,5 +68,10 @@ namespace GridSubsystem
             else
                 return false;
         }
+
+        public override string ToString()
+        {
+            return String.Format("X: {0}, Y: {1}", m_X, m_Y);
+        }
     }
 }

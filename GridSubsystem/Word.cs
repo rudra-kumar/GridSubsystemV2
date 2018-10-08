@@ -76,6 +76,14 @@ namespace GridSubsystem
         {
             return m_Data.GetEnumerator();
         }
+
+        public override string ToString()
+        {
+            string output = "";
+            foreach (Letter l in m_Data)
+                output += l.ToString();
+            return output;
+        }
         #endregion
 
         #region Private Methods
