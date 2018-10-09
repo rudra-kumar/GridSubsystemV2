@@ -42,22 +42,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="2DArray.cs" />
+    <Compile Include="util\2DArray.cs" />
     <Compile Include="Cell.cs" />
-    <Compile Include="GenericCopier.cs" />
     <Compile Include="Node.cs" />
     <Compile Include="Grid.cs" />
     <Compile Include="Position.cs" />
     <Compile Include="Letter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="util\GenericCopier.cs" />
     <Compile Include="Word.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="util\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
