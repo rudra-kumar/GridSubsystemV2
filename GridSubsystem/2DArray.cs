@@ -35,6 +35,16 @@ namespace GridSubsystem
             m_Array = new T[height * width];
         }
 
+        public _2DArray(_2DArray<T> array)
+        {
+            m_Height = array.m_Height;
+            m_Width = array.m_Width;
+            m_Array = new T[m_Height * m_Width];
+            m_Array = GenericCopier<T[]>.DeepCopy(array.m_Array);
+        }
+
+        
+
         public T this[int row, int col]
         {
             get

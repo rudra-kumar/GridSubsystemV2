@@ -27,6 +27,7 @@ namespace GridSubsystem
                                                                 'F','G','H','I','J','K','L','M',
                                                                 'N','O','P','Q','R','S','T','U',
                                                                 'V','W','X','Y','Z'};
+        public static int count = 0;
         #endregion
 
         #region Properties
@@ -40,6 +41,15 @@ namespace GridSubsystem
             m_Grid = new _2DArray<Cell>(rows, columns);
             m_InsertedWords = new List<Word>();
             InitCells();
+        }
+        // Clone the grid.
+        public Grid(Grid grid)
+        {
+            m_Rows =    grid.m_Rows;
+            m_Columns = grid.m_Columns;
+            m_Grid = new _2DArray<Cell>(grid.m_Grid);
+            m_InsertedWords = new List<Word>(grid.m_InsertedWords);
+            m_IsEmpty = grid.m_IsEmpty;
         }
 
         /// <summary>
@@ -113,6 +123,10 @@ namespace GridSubsystem
         /// <param name="words">list of potential words</param>
         public void GenerateGrid(List<string> words)
         {
+
+
+            
+
             // Sort the incoming words by alphabet
             Dictionary<char, List<string>> alphabeticalMap = new Dictionary<char, List<string>>();
             List<string> potentialWords = new List<string>(words);
@@ -149,6 +163,37 @@ namespace GridSubsystem
             //      Start operation all over again for all cells 
             //  ELSE
             //      Move on to the next cell
+        }
+
+        public void GreedyAlgorithm(List<string> words)
+        {
+
+            // If the masterlist is empty or possible locations is zero
+            //  Print grid to the console.
+            List<Word> potentialWords = GenPossiblePositions(words);
+
+            // if the list is empty then exit the recursiveness 
+            if (words.Count == 0 || potentialWords.Count == 0)
+            {
+                Console.WriteLine(count);
+                count++;
+                Console.WriteLine(ToString());
+                Console.Write(String.Format("Inserted Words: {0}", m_InsertedWords.Count));
+                Console.WriteLine();
+            }
+            else
+            {
+                //  Find all words with locations for remaining words on list
+                foreach (Word word in potentialWords)
+                {
+                    Grid gridCopy = new Grid(this);
+                    gridCopy.InsertWord(word);
+                    List<string> wordsCopy = new List<string>(words);
+                    wordsCopy.Remove(word.Value);
+
+                    gridCopy.GreedyAlgorithm(wordsCopy);
+                }
+            }
         }
         #endregion
 

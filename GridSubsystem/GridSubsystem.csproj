@@ -44,7 +44,8 @@
   <ItemGroup>
     <Compile Include="2DArray.cs" />
     <Compile Include="Cell.cs" />
-    <Compile Include="GreedyTree.cs" />
+    <Compile Include="GenericCopier.cs" />
+    <Compile Include="Node.cs" />
     <Compile Include="Grid.cs" />
     <Compile Include="Position.cs" />
     <Compile Include="Letter.cs" />

@@ -12,6 +12,7 @@ namespace GridSubsystem
         Filled,
         Overridden
     }
+    [Serializable]
     class Cell
     {
         #region Private Members

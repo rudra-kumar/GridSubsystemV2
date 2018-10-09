@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace GridSubsystem
 {
+    [Serializable]
     class Position
     {
         private int m_X = 0, m_Y = 0;

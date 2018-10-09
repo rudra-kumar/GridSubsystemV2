@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace GridSubsystem
 {
+    [Serializable]
     struct Letter
     {
         private char m_Letter;
