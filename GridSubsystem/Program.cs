@@ -10,11 +10,14 @@ namespace GridSubsystem
     {
         static void Main()
         {
-            Grid grid = new Grid(3, 3);
+            //Grid grid = new Grid(3, 3);
             //List<string> words = new List<string> { "AL", "ALAN", "ANGELA", "BETTY", "BILL", "BRENDA", "CHARLES", "FRED", "GARY", "GEORGE", "GRAHAM", "HARRY", "JACK", "JESSICA", "JILL", "JOHNATHON", "LARRY", "MARK", "MARY", "MATTHEW", "OSCAR", "PAM", "PETER", "ROBERT", "ROGER", "RON", "RONALD", "ROSE", "SUSAN", "TOM", "WENDY" };
-            List<string> words = new List<string> { "CAT", "TAX", "AXE", "BOX"  };
+            List<string> words = new List<string> { "CAT", "AXE", "BOX", "TAX"  };
             //List<string> words = new List<string> { "IDOL", "GREEDY", "RUN" };
-            grid.GreedyAlgorithm(words);
+            //grid.GreedyAlgorithm(words);
+            // 
+            Node node = new Node(3, 3, words);
+            node.GreedyAlgorithm();
             //Console.WriteLine(grid.InsertWord(new Word("BOX", new Position(0, 1), Orientation.Vertical)));
             //List<Word> possibleWords = grid.GenPossiblePositions(words);
 

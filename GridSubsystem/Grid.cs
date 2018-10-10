@@ -18,8 +18,8 @@ namespace GridSubsystem
     class Grid
     {
         #region Private Members
-        int m_Rows;
-        int m_Columns;
+        private int m_Rows;
+        private int m_Columns;
         _2DArray<Cell> m_Grid;
         List<Word> m_InsertedWords;
         bool m_IsEmpty = true;
@@ -31,6 +31,15 @@ namespace GridSubsystem
         #endregion
 
         #region Properties
+        public int Rows
+        {
+            get { return m_Rows; }
+        }
+        public int Columns
+        {
+            get { return m_Columns; }
+        }
+
         #endregion
 
         #region Public Methods
@@ -190,7 +199,6 @@ namespace GridSubsystem
                     gridCopy.InsertWord(word);
                     List<string> wordsCopy = new List<string>(words);
                     wordsCopy.Remove(word.Value);
-
                     gridCopy.GreedyAlgorithm(wordsCopy);
                 }
             }
