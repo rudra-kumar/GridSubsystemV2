@@ -12,6 +12,7 @@ namespace GridSubsystem
         Grid m_Grid;
         List<string> m_Words;
         List<Node> m_ChildNode;
+        static List<string> m_FinalGrid = new List<string>();
         private static int count = 0;
         #endregion
 
@@ -22,6 +23,10 @@ namespace GridSubsystem
             {
                 return m_Grid;
             }
+        }
+        public List<string> FinalGrid
+        {
+            get { return m_FinalGrid; }
         }
         #endregion
 
@@ -44,21 +49,30 @@ namespace GridSubsystem
 
         public void GreedyAlgorithm()
         {
-            List<Word> potentialWords = m_Grid.GenPossiblePositions(m_Words);
-            Console.WriteLine(m_Grid.ToString());
+            List<Word> potentialWords = m_Grid.GenPossiblePositionsV2(m_Words);
+            //Console.WriteLine(m_Grid.ToString());
             if(potentialWords.Count == 0)
             {
-                Console.WriteLine(count);
-                Console.WriteLine(m_Grid.ToString());
-                count++;
+                m_FinalGrid.Add(m_Grid.ToString());
             }
             else
             {
-                foreach (Word word in potentialWords)
+                if (m_Grid.IsEmpty)
+                {
+                    foreach (Word word in potentialWords)
+                    {
+                        Node childNode = Copy();
+                        childNode.m_Grid.InsertWord(word);
+                        childNode.m_Words.Remove(word.Value);
+                        m_ChildNode.Add(childNode);
+                        childNode.GreedyAlgorithm();
+                    }
+                }
+                else
                 {
                     Node childNode = Copy();
-                    childNode.m_Grid.InsertWord(word);
-                    childNode.m_Words.Remove(word.Value);
+                    childNode.m_Grid.InsertWord(potentialWords[0]);
+                    childNode.m_Words.Remove(potentialWords[0].Value);
                     m_ChildNode.Add(childNode);
                     childNode.GreedyAlgorithm();
                 }

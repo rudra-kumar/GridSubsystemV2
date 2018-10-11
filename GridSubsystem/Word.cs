@@ -41,10 +41,21 @@ namespace GridSubsystem
         {
             get
             {
+                Position endPosition;
                 if (m_Orientation == Orientation.Horizontal)
-                    return new Position(m_Position.X, m_Position.Y + (m_Length - 1));
+                {
+                    endPosition.m_X = m_Position.m_X;
+                    endPosition.m_Y = m_Position.m_Y + (m_Length - 1);
+                    return endPosition;
+
+                }
                 else
-                    return new Position(m_Position.X + (m_Length - 1), m_Position.Y);
+                {
+                    endPosition.m_X = m_Position.m_X + (m_Length - 1);
+                    endPosition.m_Y = m_Position.m_Y;
+                    return endPosition;
+
+                }
             }
         }
         public Orientation Orientation

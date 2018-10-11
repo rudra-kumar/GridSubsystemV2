@@ -52,10 +52,10 @@ namespace GridSubsystem
         #region Public Members
         public Cell(Position position)
         {
-            m_Position = new Position(-1, -1);
+            
             m_Data.Value = Letter.Empty;
-            m_Position.X = position.X;
-            m_Position.Y = position.Y;
+            m_Position.m_X = position.m_X;
+            m_Position.m_Y = position.m_Y;
             m_State = CellState.Empty;
         }
 

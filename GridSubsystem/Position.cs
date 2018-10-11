@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 namespace GridSubsystem
 {
     [Serializable]
-    class Position
+    struct Position
     {
-        private int m_X = 0, m_Y = 0;
+        public int m_X, m_Y;
         public int Y
         {
             get { return m_Y; }
@@ -34,6 +34,14 @@ namespace GridSubsystem
         {
             m_X = position.m_X;
             m_Y = position.m_Y;
+        }
+
+        public Position Copy()
+        {
+            Position pos;
+            pos.m_X = m_X;
+            pos.m_Y = m_Y;
+            return pos;
         }
 
         public static bool operator ==(Position lhs, Position rhs)

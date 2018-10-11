@@ -28,6 +28,7 @@ namespace GridSubsystem
                                                                 'N','O','P','Q','R','S','T','U',
                                                                 'V','W','X','Y','Z'};
         public static int count = 0;
+        private List<Word> m_wordList;
         #endregion
 
         #region Properties
@@ -39,7 +40,10 @@ namespace GridSubsystem
         {
             get { return m_Columns; }
         }
-
+        public bool IsEmpty
+        {
+            get { return m_IsEmpty; }
+        }
         #endregion
 
         #region Public Methods
@@ -61,6 +65,68 @@ namespace GridSubsystem
             m_IsEmpty = grid.m_IsEmpty;
         }
 
+
+        public void InitializeWordList(List<string> words)
+        {
+            Position defaultPosition;
+            defaultPosition.m_X = -1;
+            defaultPosition.m_Y = -1;
+            foreach (string word in words)
+            {
+                m_wordList.Add(new Word(word, defaultPosition, Orientation.Horizontal));
+                m_wordList.Add(new Word(word, defaultPosition, Orientation.Vertical));
+            }
+
+        }
+
+
+        public List<Word> GenPossiblePositionsV2(List<string> words)
+        {
+            List<Word> possibleWords = new List<Word>();
+            foreach (string word in words)
+            {
+                // IF grid is empty, generate all possible locations
+                if(IsEmpty)
+                {
+                    for (int row = 0; row < m_Rows; row++)
+                        for (int col = 0; col < m_Columns; col++)
+                        {
+                            Position position;
+                            position.m_X = row;
+                            position.m_Y = col;
+                            Word Horizontal = new Word(word, position, Orientation.Horizontal);
+                            Word Vertical = new Word(word, position, Orientation.Vertical);
+
+                            if (CanInsertWord(Horizontal))
+                                possibleWords.Add(Horizontal);
+                            if (CanInsertWord(Vertical))
+                                possibleWords.Add(Vertical);
+                        }
+                }
+                else
+                {
+                    // Only check the locations that are full
+                    foreach (Cell cell in m_Grid)
+                    {
+                        if (!cell.isEmpty)
+                        {
+                            Position position = cell.Position;
+                            Word Horizontal = new Word(word, position, Orientation.Horizontal);
+                            Word Vertical = new Word(word, position, Orientation.Vertical);
+
+                            if (CanInsertWord(Horizontal))
+                                possibleWords.Add(Horizontal);
+                            if (CanInsertWord(Vertical))
+                                possibleWords.Add(Vertical);
+                        }
+
+                    }
+
+                }
+            }
+            return possibleWords;
+        }
+
         /// <summary>
         /// Generates all possible positions, Each word can be inserted
         /// </summary>
@@ -74,8 +140,11 @@ namespace GridSubsystem
                 for (int row = 0; row < m_Rows; row++)
                     for (int col = 0; col < m_Columns; col++)
                     {
-                        Word Horizontal = new Word(word, new Position(row, col), Orientation.Horizontal);
-                        Word Vertical = new Word(word, new Position(row, col), Orientation.Vertical);
+                        Position position;
+                        position.m_X = row;
+                        position.m_Y = col;
+                        Word Horizontal = new Word(word, position, Orientation.Horizontal);
+                        Word Vertical = new Word(word, position, Orientation.Vertical);
 
                         if (CanInsertWord(Horizontal))
                             possibleWords.Add(Horizontal);
@@ -132,10 +201,6 @@ namespace GridSubsystem
         /// <param name="words">list of potential words</param>
         public void GenerateGrid(List<string> words)
         {
-
-
-            
-
             // Sort the incoming words by alphabet
             Dictionary<char, List<string>> alphabeticalMap = new Dictionary<char, List<string>>();
             List<string> potentialWords = new List<string>(words);
@@ -153,8 +218,11 @@ namespace GridSubsystem
                     // iterate over all the words in the list
                     for(int word = 0; word < potentialWords.Count; word++)
                     {
-                        if (InsertWord(new Word(potentialWords[word], new Position(row, col), Orientation.Horizontal)) ||
-                            InsertWord(new Word(potentialWords[word], new Position(row, col), Orientation.Vertical)))
+                        Position position;
+                        position.m_X = row;
+                        position.m_Y = col;
+                        if (InsertWord(new Word(potentialWords[word], position, Orientation.Horizontal)) ||
+                            InsertWord(new Word(potentialWords[word], position, Orientation.Vertical)))
                         {
                             potentialWords.RemoveAt(word);
                             word = 0;
@@ -211,7 +279,12 @@ namespace GridSubsystem
         {
             for (int row = 0; row < m_Rows; row++)
                 for (int col = 0; col < m_Columns; col++)
-                    m_Grid[row, col] = new Cell(new Position(row, col));
+                {
+                    Position position;
+                    position.m_X = row;
+                    position.m_Y = col;
+                    m_Grid[row, col] = new Cell(position);
+                }
         }
 
 
@@ -245,12 +318,22 @@ namespace GridSubsystem
                             case Orientation.Horizontal:
                                 //  IF empty check the cell above and below it is empty or not
                                 if (CheckIfEmpty(cellPositions[index], Offset.Top) && CheckIfEmpty(cellPositions[index], Offset.Bottom))
+                                {
+                                    // IF overriding the first letter of the word, ensure you're not overriding a horizontal word
+                                    if (index == 0 && !CheckIfEmpty(cellPositions[index], Offset.Left))
+                                        return false;
                                     continue;
+                                }
                                 else
                                     return false;
                             case Orientation.Vertical:
                                 if (CheckIfEmpty(cellPositions[index], Offset.Left) && CheckIfEmpty(cellPositions[index], Offset.Right))
+                                {
+                                    // IF overriding the first letter of the word, ensure you're not overriding a Vertical word
+                                    if (index == 0 && !CheckIfEmpty(cellPositions[index], Offset.Top))
+                                        return false;
                                     continue;
+                                }
                                 else
                                     return false;
                         }
@@ -310,10 +393,10 @@ namespace GridSubsystem
             List<Position> range = new List<Position>();
             // Start at 0,0
             // While position is less than the ending position
-            for(Position pos = new Position(word.Position); pos <= word.EndPosition;  )
+            for(Position pos = word.Position.Copy(); pos <= word.EndPosition; )
             {
             //  Add position to the list
-                range.Add(new Position(pos));
+                range.Add(pos);
             //  Increment position 
                 if (word.Orientation == Orientation.Horizontal)
                     pos.Y++;
