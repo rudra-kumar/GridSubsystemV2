@@ -80,49 +80,53 @@ namespace GridSubsystem
         }
 
 
-        public List<Word> GenPossiblePositionsV2(List<string> words)
+        public List<Word> GenPossiblePositionsV2(Dictionary<char,List<string>> charMappedWords)
         {
             List<Word> possibleWords = new List<Word>();
-            foreach (string word in words)
+            // For each cell in the grid that is not empty 
+            Position position;
+            // If Grid is empty then generate all possible positions for all words
+            if(m_IsEmpty)
             {
-                // IF grid is empty, generate all possible locations
-                if(IsEmpty)
-                {
-                    for (int row = 0; row < m_Rows; row++)
-                        for (int col = 0; col < m_Columns; col++)
-                        {
-                            Position position;
-                            position.m_X = row;
-                            position.m_Y = col;
-                            Word Horizontal = new Word(word, position, Orientation.Horizontal);
-                            Word Vertical = new Word(word, position, Orientation.Vertical);
+                HashSet<string> words = new HashSet<string>();
+                foreach (char key in charMappedWords.Keys)
+                    foreach (string word in charMappedWords[key])
+                        words.Add(word);
 
-                            if (CanInsertWord(Horizontal))
-                                possibleWords.Add(Horizontal);
-                            if (CanInsertWord(Vertical))
-                                possibleWords.Add(Vertical);
-                        }
-                }
-                else
-                {
-                    // Only check the locations that are full
-                    foreach (Cell cell in m_Grid)
+                possibleWords = GenPossiblePositions(words.ToList());
+
+            }
+            else
+            {
+                for (int row = 0; row < m_Rows; row++)
+                    for (int col = 0; col < m_Columns; col++)
                     {
-                        if (!cell.isEmpty)
+                        Cell cell = m_Grid[row, col];
+                        // If the cell contains a char 
+                        char cellData = cell.Data.Value;
+                        if(cellData != '\0')
                         {
-                            Position position = cell.Position;
-                            Word Horizontal = new Word(word, position, Orientation.Horizontal);
-                            Word Vertical = new Word(word, position, Orientation.Vertical);
+                            // Try inserting words that contain that letter Horizontally & Vertically 
+                            for(int wordIndex = 0; wordIndex < charMappedWords[cellData].Count; wordIndex++)
+                            {
+                                string word = charMappedWords[cellData][wordIndex];
+                                // #TODO: Optimizations check if the nearby cells are empty and call only 1 constructor
+                                string[] splitString = word.Split(cellData);
+                                position.m_X = cell.Position.X;
+                                position.m_Y = cell.Position.Y - (splitString[0].Length);
+                                Word Horizontal = new Word(word, position, Orientation.Horizontal);
+                                // Offset for vertical positions
+                                position.m_X = cell.Position.X - (splitString[0].Length);
+                                position.m_Y = cell.Position.Y;
 
-                            if (CanInsertWord(Horizontal))
-                                possibleWords.Add(Horizontal);
-                            if (CanInsertWord(Vertical))
-                                possibleWords.Add(Vertical);
+                                Word Vertical = new Word(word, position, Orientation.Vertical);
+                                if (CanInsertWord(Horizontal))
+                                    possibleWords.Add(Horizontal);
+                                if (CanInsertWord(Vertical))
+                                    possibleWords.Add(Vertical);
+                            }
                         }
-
                     }
-
-                }
             }
             return possibleWords;
         }
@@ -162,20 +166,17 @@ namespace GridSubsystem
         /// <returns>Bool representing if the operation was successful.</returns>
         public bool InsertWord(Word word)
         {
-            if (CanInsertWord(word))
+           
+            List<Position> insertionPositions = GetRange(word);
+            for(int index = 0; index < insertionPositions.Count; index++)
             {
-                List<Position> insertionPositions = GetRange(word);
-                for(int index = 0; index < insertionPositions.Count; index++)
-                {
-                    Position position = insertionPositions[index];
-                    m_Grid[position.X, position.Y].Data = word[index];
-                }
-                m_InsertedWords.Add(word);
-                if (m_IsEmpty)
-                    m_IsEmpty = false;
-                return true;
+                Position position = insertionPositions[index];
+                m_Grid[position.X, position.Y].Data = word[index];
             }
-            return false;
+            m_InsertedWords.Add(word);
+            if (m_IsEmpty)
+                m_IsEmpty = false;
+            return true;
         }
 
         public override string ToString()
@@ -298,7 +299,7 @@ namespace GridSubsystem
         {
             bool isOverlapping = false;
             // If the word is longer than columns 
-            if (!IsValidIndex(word.EndPosition.X, word.EndPosition.Y))
+            if (!IsValidIndex(word.EndPosition.X, word.EndPosition.Y) || !IsValidIndex(word.Position.X, word.Position.Y))
                 return false;
             // Get the range of cells that the word would be inserted in. 
             List<Position> cellPositions = GetRange(word);
