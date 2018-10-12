@@ -118,12 +118,21 @@ namespace GridSubsystem
                                 // Offset for vertical positions
                                 position.m_X = cell.Position.X - (splitString[0].Length);
                                 position.m_Y = cell.Position.Y;
-
+                                bool wordInserted = false;
                                 Word Vertical = new Word(word, position, Orientation.Vertical);
                                 if (CanInsertWord(Horizontal))
+                                {
                                     possibleWords.Add(Horizontal);
+                                    wordInserted = true;
+                                }
                                 if (CanInsertWord(Vertical))
+                                {
                                     possibleWords.Add(Vertical);
+                                    wordInserted = true;
+
+                                }
+                                if (wordInserted)
+                                    break;
                             }
                         }
                     }

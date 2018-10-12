@@ -30,6 +30,8 @@ namespace GridSubsystem
             {
                 if (m_State == CellState.Empty)
                     m_State = CellState.Filled;
+                else if (m_State == CellState.Filled)
+                    m_State = CellState.Overridden;
                 m_Data = value;
             }
         }
