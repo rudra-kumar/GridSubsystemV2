@@ -27,6 +27,34 @@ namespace GridSubsystem
                                                                 'F','G','H','I','J','K','L','M',
                                                                 'N','O','P','Q','R','S','T','U',
                                                                 'V','W','X','Y','Z'};
+        static readonly List<KeyValuePair<int, char>> m_IntersectingCharWeight = new List<KeyValuePair<int, char>>() {
+            new KeyValuePair<int, char>( 26 , 'Z'),
+            new KeyValuePair<int, char>( 25 , 'Y'),
+            new KeyValuePair<int, char>( 24 , 'X'),
+            new KeyValuePair<int, char>( 23 , 'W'),
+            new KeyValuePair<int, char>( 22 , 'V'),
+            new KeyValuePair<int, char>( 21 , 'U'),
+            new KeyValuePair<int, char>( 20 , 'T'),
+            new KeyValuePair<int, char>( 19 , 'S'),
+            new KeyValuePair<int, char>( 18 , 'R'),
+            new KeyValuePair<int, char>( 17 , 'Q'),
+            new KeyValuePair<int, char>( 16 , 'P'),
+            new KeyValuePair<int, char>( 15 , 'O'),
+            new KeyValuePair<int, char>( 14 , 'N'),
+            new KeyValuePair<int, char>( 13 , 'M'),
+            new KeyValuePair<int, char>( 12 , 'L'),
+            new KeyValuePair<int, char>( 11 , 'K'),
+            new KeyValuePair<int, char>( 10 , 'J'),
+            new KeyValuePair<int, char>( 9 , 'I'),
+            new KeyValuePair<int, char>( 8 , 'H'),
+            new KeyValuePair<int, char>( 7 , 'G'),
+            new KeyValuePair<int, char>( 6 , 'F'),
+            new KeyValuePair<int, char>( 5 , 'E'),
+            new KeyValuePair<int, char>( 4 , 'D'),
+            new KeyValuePair<int, char>( 3 , 'C'),
+            new KeyValuePair<int, char>( 2 , 'B'),
+            new KeyValuePair<int, char>( 1 , 'A')
+        };
         public static int count = 0;
         private List<Word> m_wordList;
         #endregion
@@ -80,6 +108,87 @@ namespace GridSubsystem
         }
 
 
+        public List<Word> GenPossiblePositionsV3(Dictionary<char,List<string>> charMappedWords)
+        {
+            List<Word> possibleWords = new List<Word>();
+            // For each cell in the grid that is not empty 
+            Position position;
+            // If Grid is empty then generate all possible positions for all words
+            if(m_IsEmpty)
+            {
+                HashSet<string> words = new HashSet<string>();
+                foreach (char key in charMappedWords.Keys)
+                    foreach (string word in charMappedWords[key])
+                        words.Add(word);
+
+                possibleWords = GenPossiblePositions(words.ToList());
+
+            }
+            else
+            {
+                Dictionary<char, List<Cell>> m_FilledCells = new Dictionary<char, List<Cell>>();
+                for (int row = 0; row < m_Rows; row++)
+                    for (int col = 0; col < m_Columns; col++)
+                    {
+                        Cell cell = m_Grid[row, col];
+                        // If cell is not empty 
+                        if(cell.State == CellState.Filled)
+                        {
+                            // Map char's to cells that contain that char. 
+                            char key = cell.Data.Value;
+                            if (!m_FilledCells.ContainsKey(key))
+                                m_FilledCells.Add(key, new List<Cell>() { cell });
+                            else
+                                m_FilledCells[key].Add(cell);
+                        }
+                    }
+
+                // Iterate through the cells, with cells containing the highest scoring value being evaluated first
+                foreach (KeyValuePair<int, char> charWeight in m_IntersectingCharWeight)
+                {
+                    bool wordInserted = false;
+                    // If cells contain char value
+                    if(m_FilledCells.ContainsKey(charWeight.Value))
+                    {
+                        // Try to insert words into those cells 
+                        // For each cell that contains the char, try inserting words mapped to that char
+                        List<Cell> cellsContainingSameLetter = m_FilledCells[charWeight.Value];
+                        for(int cellIndex = 0; cellIndex < cellsContainingSameLetter.Count; cellIndex++)
+                        {
+                            Cell cell = cellsContainingSameLetter[cellIndex];
+                            // Try inserting words that contain that letter Horizontally & Vertically 
+                            for (int wordIndex = 0; wordIndex < charMappedWords[charWeight.Value].Count; wordIndex++)
+                            {
+                                string word = charMappedWords[charWeight.Value][wordIndex];
+                                // #TODO: Optimizations check if the nearby cells are empty and call only 1 constructor
+                                string[] splitString = word.Split(charWeight.Value);
+                                position.m_X = cell.Position.X;
+                                position.m_Y = cell.Position.Y - (splitString[0].Length);
+                                Word Horizontal = new Word(word, position, Orientation.Horizontal);
+                                // Offset for vertical positions
+                                position.m_X = cell.Position.X - (splitString[0].Length);
+                                position.m_Y = cell.Position.Y;
+                                Word Vertical = new Word(word, position, Orientation.Vertical);
+                                if (CanInsertWord(Horizontal))
+                                {
+                                    possibleWords.Add(Horizontal);
+                                    wordInserted = true;
+                                }
+                                if (CanInsertWord(Vertical))
+                                {
+                                    possibleWords.Add(Vertical);
+                                    wordInserted = true;
+
+                                }   
+                            }
+                        }
+                    }
+                    if (wordInserted)
+                        return possibleWords;
+                }
+            }
+            return possibleWords;
+        }
         public List<Word> GenPossiblePositionsV2(Dictionary<char,List<string>> charMappedWords)
         {
             List<Word> possibleWords = new List<Word>();

@@ -80,7 +80,7 @@ namespace GridSubsystem
         public void GreedyAlgorithm()
         {
             //Console.WriteLine(m_Grid.ToString());
-            List<Word> potentialWords = m_Grid.GenPossiblePositionsV2(m_CharMappedWords);
+            List<Word> potentialWords = m_Grid.GenPossiblePositionsV3(m_CharMappedWords);
             //Console.WriteLine(m_Grid.ToString());
             if(potentialWords.Count == 0)
             {

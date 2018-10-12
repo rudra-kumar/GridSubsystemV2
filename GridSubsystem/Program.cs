@@ -13,12 +13,12 @@ namespace GridSubsystem
         {
             //Grid grid = new Grid(3, 3);
             //List<string> words = new List<string> { "AL", "ALAN", "ANGELA", "BETTY", "BILL", "BRENDA", "CHARLES", "FRED", "GARY", "GEORGE", "GRAHAM", "HARRY", "JACK", "JESSICA", "JILL", "JOHNATHON", "LARRY", "MARK", "MARY", "MATTHEW", "OSCAR", "PAM", "PETER", "ROBERT", "ROGER", "RON", "RONALD", "ROSE", "SUSAN", "TOM", "WENDY" };
-            //List<string> words = new List<string> { "CAT", "AXE", "BOX", "TAX"  };
-            List<string> words = new List<string> { "CAT", "ASH", "HOAX", "TAX"  };
+            List<string> words = new List<string> { "CAT", "AXE", "BOX", "TAX"  };
+            //List<string> words = new List<string> { "CAT", "ASH", "HOAX", "TAX"  };
             //List<string> words = new List<string> { "IDOL", "GREEDY", "RUN" };
             //grid.GreedyAlgorithm(words);
             // 
-            Node node = new Node(4, 4, words);
+            Node node = new Node(3, 3, words);
             node.GreedyAlgorithm();
             int count = 0;
             foreach (string str in node.FinalGrid)
