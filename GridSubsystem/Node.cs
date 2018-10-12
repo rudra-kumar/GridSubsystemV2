@@ -88,7 +88,7 @@ namespace GridSubsystem
             }
             else
             {
-                //if (m_Grid.IsEmpty)
+                if (m_Grid.IsEmpty)
                 {
                     foreach (Word word in potentialWords)
                     {
@@ -103,19 +103,19 @@ namespace GridSubsystem
                         childNode.GreedyAlgorithm();
                     }
                 }
-                //else
-                //{
-                //    Node childNode = Copy();
-                //    Word word = potentialWords[0];
-                //    childNode.m_Grid.InsertWord(word);
-                //    // Remove inserted word
-                //    for (int charIndex = 0; charIndex < word.Length; charIndex++)
-                //    {
-                //        childNode.m_CharMappedWords[word[charIndex].Value].Remove(word.Value);
-                //    }
-                //    m_ChildNode.Add(childNode);
-                //    childNode.GreedyAlgorithm();
-                //}
+                else
+                {
+                    Node childNode = Copy();
+                    Word word = potentialWords[0];
+                    childNode.m_Grid.InsertWord(word);
+                    // Remove inserted word
+                    for (int charIndex = 0; charIndex < word.Length; charIndex++)
+                    {
+                        childNode.m_CharMappedWords[word[charIndex].Value].Remove(word.Value);
+                    }
+                    m_ChildNode.Add(childNode);
+                    childNode.GreedyAlgorithm();
+                }
             }
 
 
